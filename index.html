@@ -10,8 +10,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Warm Neutrals -->
-    <!-- Application Structure Plan: The SPA implements the "Dual-Journey" model from the report. The initial screen forces a user to self-identify as either a "Multifamily Investor" or "HOA Board Member". This choice dynamically reveals a tailored section for that persona. The Investor journey is further segmented into "Emerging" vs. "Institutional" personas, compared visually with cards and a chart. The HOA journey is now structured around the "Empowered Steward" concept with a more positive, empathetic tone. This structure directly translates the report's core strategic insight—that these are distinct audiences—into an intuitive user flow. -->
-    <!-- Visualization & Content Choices: 1) Investor Persona Comparison: Report's Table 1 -> Goal: Compare/differentiate investor sub-personas -> Viz: Side-by-side cards and a Chart.js horizontal bar chart -> Interaction: Clicking a persona card reveals their specific toolset. 2) HOA Responsibility Matrix: Report's Table 2 -> Goal: Empower and guide HOA board members -> Viz: Chart.js radar chart visualizing core responsibilities -> Interaction: Clicking a point on the chart dynamically displays solution-oriented text. 3) Site Navigation: Report's "Dual-Journey" architecture -> Goal: Create distinct user paths -> Method: JS-driven content visibility toggling. -->
+    <!-- Application Structure Plan: The SPA implements the "Dual-Journey" model. The initial screen forces a user to self-identify as either a "Multifamily Investor" or "HOA Board Member". The HOA journey now includes an interactive Board Health & Risk Assessment tool to provide immediate value and demonstrate a lead-capture mechanism. -->
+    <!-- Visualization & Content Choices: 1) Investor Persona Comparison: Chart.js horizontal bar chart. 2) HOA Responsibility Matrix: Chart.js radar chart. 3) HOA Board Health Assessment: An interactive quiz built with JS that dynamically calculates a score and presents results, leading to an email-based lead capture form. This directly implements the tool proposed in the strategic analysis. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -23,6 +23,8 @@
         @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-10px); } }
         .active-nav { color: #0f766e; border-bottom-color: #0f766e; }
         .inactive-nav { color: #475569; border-bottom-color: transparent; }
+        .quiz-option:hover { background-color: #f0f9ff; }
+        .quiz-option.selected { background-color: #e0f2fe; border-color: #0ea5e9; }
     </style>
 </head>
 <body class="bg-stone-50 text-slate-800">
@@ -104,10 +106,11 @@
                 <p class="text-lg text-slate-600 max-w-3xl mx-auto">Guidance for the heart of your community. You stepped up to protect your investment and enhance your neighborhood. We're here to provide the clear guidance and expert tools you need to lead with confidence and make a lasting, positive impact.</p>
             </div>
             
-            <div class="grid md:grid-cols-2 gap-8 items-center">
+            <!-- Existing HOA Content -->
+            <div class="grid md:grid-cols-2 gap-8 items-center mb-12">
                 <div class="bg-white p-6 rounded-lg shadow-lg">
                     <h3 class="text-xl font-bold text-center text-slate-800 mb-4">Navigating Your Key Responsibilities</h3>
-                    <p class="text-center text-slate-600 text-sm mb-4">A successful community is built on a foundation of sound leadership. This chart highlights the core areas of focus for every effective board. Explore each point to discover expert guidance and tools that empower you to fulfill your role with confidence.</p>
+                    <p class="text-center text-slate-600 text-sm mb-4">A successful community is built on sound leadership. This chart highlights the core areas of focus for every effective board. Explore each point to discover expert guidance.</p>
                     <div class="chart-container">
                         <canvas id="hoaPainPointChart"></canvas>
                     </div>
@@ -118,32 +121,60 @@
                 </div>
             </div>
 
-            <div class="mt-12 bg-white p-8 rounded-lg shadow-lg">
-                 <h3 class="text-2xl font-bold text-slate-800 mb-6 text-center">Your Leadership Toolkit: Core Modules</h3>
-                 <div class="grid md:grid-cols-3 gap-8">
-                    <div class="text-center">
-                        <div class="mx-auto bg-teal-100 text-teal-700 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-                            <span class="text-3xl font-bold">§</span>
+            <!-- NEW: HOA Board Health & Risk Assessment Tool -->
+            <div id="hoa-assessment-tool" class="mt-16 bg-white p-8 rounded-lg shadow-xl border border-slate-200">
+                <div class="text-center">
+                    <h3 class="text-2xl font-bold text-slate-800 mb-2">Free Tool: HOA Board Health & Risk Assessment</h3>
+                    <p class="text-slate-600 mb-8 max-w-2xl mx-auto">Get an instant snapshot of your board's operational health. This 3-question quiz helps identify potential risks before they become major problems.</p>
+                </div>
+
+                <div id="quiz-container" class="space-y-8">
+                    <!-- Question 1 -->
+                    <div>
+                        <p class="font-semibold text-lg mb-3">1. How old is your most recent reserve study?</p>
+                        <div class="grid sm:grid-cols-2 gap-4" data-question="1">
+                            <div class="quiz-option border-2 border-slate-200 p-4 rounded-lg cursor-pointer transition" data-score="10">We have a professional study less than 3 years old.</div>
+                            <div class="quiz-option border-2 border-slate-200 p-4 rounded-lg cursor-pointer transition" data-score="5">It's more than 3 years old, or we did it ourselves.</div>
+                            <div class="quiz-option border-2 border-slate-200 p-4 rounded-lg cursor-pointer transition" data-score="0">What's a reserve study?</div>
                         </div>
-                        <h4 class="text-xl font-semibold mb-2">Governance & Compliance</h4>
-                        <p class="text-slate-600">Confidently fulfill your duties with clear guides on your legal responsibilities, meeting procedures, and governing documents.</p>
                     </div>
-                    <div class="text-center">
-                         <div class="mx-auto bg-teal-100 text-teal-700 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-                            <span class="text-3xl font-bold">$</span>
+                    <!-- Question 2 -->
+                    <div>
+                        <p class="font-semibold text-lg mb-3">2. How are rule violations handled in your community?</p>
+                        <div class="grid sm:grid-cols-2 gap-4" data-question="2">
+                            <div class="quiz-option border-2 border-slate-200 p-4 rounded-lg cursor-pointer transition" data-score="10">We have a written policy that is followed consistently.</div>
+                            <div class="quiz-option border-2 border-slate-200 p-4 rounded-lg cursor-pointer transition" data-score="5">It's handled case-by-case, sometimes inconsistently.</div>
+                            <div class="quiz-option border-2 border-slate-200 p-4 rounded-lg cursor-pointer transition" data-score="0">We avoid enforcement to prevent conflict.</div>
                         </div>
-                        <h4 class="text-xl font-semibold mb-2">Financial Stewardship</h4>
-                        <p class="text-slate-600">Master your community's finances with actionable guides on budgeting, financial reporting, and responsible reserve funding.</p>
                     </div>
-                    <div class="text-center">
-                         <div class="mx-auto bg-teal-100 text-teal-700 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-                            <span class="text-2xl">🤝</span>
+                    <!-- Question 3 -->
+                    <div>
+                        <p class="font-semibold text-lg mb-3">3. How are board meeting minutes approved and stored?</p>
+                        <div class="grid sm:grid-cols-2 gap-4" data-question="3">
+                            <div class="quiz-option border-2 border-slate-200 p-4 rounded-lg cursor-pointer transition" data-score="10">They are formally approved and stored in an accessible, permanent location.</div>
+                            <div class="quiz-option border-2 border-slate-200 p-4 rounded-lg cursor-pointer transition" data-score="5">We take them, but they aren't always approved or are hard to find.</div>
+                            <div class="quiz-option border-2 border-slate-200 p-4 rounded-lg cursor-pointer transition" data-score="0">We don't formally take or store meeting minutes.</div>
                         </div>
-                        <h4 class="text-xl font-semibold mb-2">Community Harmony</h4>
-                        <p class="text-slate-600">Lead with fairness and consistency using practical playbooks for rule enforcement, vendor management, and resident communication.</p>
                     </div>
-                 </div>
+                     <button id="show-results-btn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition disabled:bg-slate-400 disabled:cursor-not-allowed">Calculate My Board's Risk Score</button>
+                </div>
+
+                <div id="results-container" class="hidden text-center mt-8">
+                    <h4 class="text-2xl font-bold text-slate-800 mb-3">Your Board's Health Score: <span id="risk-score" class="text-teal-600"></span></h4>
+                    <p id="risk-summary" class="text-lg text-slate-700 mb-4"></p>
+                    <p class="text-slate-600 mb-6">This score highlights critical areas for improvement. A detailed report can provide a step-by-step action plan.</p>
+                    
+                    <div class="max-w-md mx-auto bg-teal-50 p-6 rounded-lg border border-teal-200">
+                        <h5 class="font-bold text-lg text-teal-800 mb-2">Get Your Full, Actionable Report</h5>
+                        <p class="text-sm text-teal-700 mb-4">Enter your email to receive a detailed breakdown of your results and a prioritized checklist to reduce your board's risk.</p>
+                        <form id="lead-capture-form">
+                            <input id="lead-email" type="email" placeholder="your-email@example.com" required class="w-full p-3 border border-slate-300 rounded-md mb-3">
+                            <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition">Email Full Report</button>
+                        </form>
+                    </div>
+                </div>
             </div>
+
         </section>
 
     </main>
@@ -167,6 +198,84 @@
 
             let investorChart = null;
             let hoaChart = null;
+
+            // HOA Assessment Tool Elements
+            const quizContainer = document.getElementById('quiz-container');
+            const showResultsBtn = document.getElementById('show-results-btn');
+            const resultsContainer = document.getElementById('results-container');
+            const riskScoreEl = document.getElementById('risk-score');
+            const riskSummaryEl = document.getElementById('risk-summary');
+            const leadCaptureForm = document.getElementById('lead-capture-form');
+            const leadEmailInput = document.getElementById('lead-email');
+
+            const quizAnswers = {};
+
+            function checkQuizCompletion() {
+                const completed = Object.keys(quizAnswers).length === 3;
+                showResultsBtn.disabled = !completed;
+            }
+
+            quizContainer.addEventListener('click', (e) => {
+                const option = e.target.closest('.quiz-option');
+                if (!option) return;
+
+                const questionContainer = e.target.closest('[data-question]');
+                const questionNumber = questionContainer.dataset.question;
+                const score = option.dataset.score;
+                const text = option.textContent;
+
+                quizAnswers[questionNumber] = { score: parseInt(score), text: text };
+
+                // Update UI
+                questionContainer.querySelectorAll('.quiz-option').forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+
+                checkQuizCompletion();
+            });
+            
+            showResultsBtn.addEventListener('click', () => {
+                let totalScore = 0;
+                Object.values(quizAnswers).forEach(answer => {
+                    totalScore += answer.score;
+                });
+
+                let summaryText = '';
+                if (totalScore >= 25) {
+                    summaryText = "Excellent! Your board appears to have strong operational health and low immediate risk.";
+                    riskScoreEl.style.color = '#0d9488';
+                } else if (totalScore >= 15) {
+                    summaryText = "Good, but with room for improvement. Your board has some solid practices but may have moderate risk in key areas.";
+                    riskScoreEl.style.color = '#f59e0b';
+                } else {
+                    summaryText = "High Risk Alert! Your board's current practices may expose the association to significant financial and legal risk.";
+                    riskScoreEl.style.color = '#dc2626';
+                }
+                
+                riskScoreEl.textContent = `${totalScore}/30`;
+                riskSummaryEl.textContent = summaryText;
+
+                quizContainer.classList.add('hidden');
+                resultsContainer.classList.remove('hidden');
+                resultsContainer.classList.add('fade-in');
+                resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+            
+            leadCaptureForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = leadEmailInput.value;
+                const subject = "HOA Board Health Assessment Results";
+                let body = "Here are the results from my HOA Board Health & Risk Assessment:\n\n";
+                body += `Overall Score: ${riskScoreEl.textContent}\n`;
+                body += `Summary: ${riskSummaryEl.textContent}\n\n`;
+                body += "Assessment Details:\n";
+                body += `1. Reserve Study: ${quizAnswers['1'].text}\n`;
+                body += `2. Rule Enforcement: ${quizAnswers['2'].text}\n`;
+                body += `3. Meeting Minutes: ${quizAnswers['3'].text}\n\n`;
+                body += "Please send me my detailed, actionable report.";
+                
+                window.location.href = `mailto:sales@yourcompany.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            });
+
 
             const investorTools = {
                 emerging: {
@@ -218,6 +327,7 @@
                         hoaJourneySection.classList.remove('hidden');
                         hoaJourneySection.classList.add('fade-in');
                         renderHoaChart();
+                        checkQuizCompletion();
                     }
                 }, 500);
             };
@@ -242,6 +352,15 @@
                     investorToolSection.classList.add('hidden');
                     emergingInvestorCard.classList.remove('border-sky-500', 'scale-105');
                     institutionalStrategistCard.classList.remove('border-sky-500', 'scale-105');
+                    
+                    // Reset quiz
+                    resultsContainer.classList.add('hidden');
+                    quizContainer.classList.remove('hidden');
+                    Object.keys(quizAnswers).forEach(key => delete quizAnswers[key]);
+                    document.querySelectorAll('.quiz-option').forEach(opt => opt.classList.remove('selected'));
+                    leadEmailInput.value = '';
+                    checkQuizCompletion();
+
 
                 }, 500);
             };
@@ -388,6 +507,7 @@
                                    hoaSolutionTitle.textContent = `Guidance for: ${label}`;
                                    hoaSolutionText.textContent = responsibilities[label].text;
                                    hoaSolutionPanel.classList.add('fade-in');
+                                   hoaSolutionPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
                                 }, 150);
                             }
                         },
