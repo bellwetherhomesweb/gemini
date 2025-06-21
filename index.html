@@ -1,714 +1,403 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The State of Home Improvement | An Interactive Report by Bellwether Homes</title>
+    <title>Property Leadership Operating System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: The SPA implements the "Dual-Journey" model from the report. The initial screen forces a user to self-identify as either a "Multifamily Investor" or "HOA Board Member". This choice dynamically reveals a tailored section for that persona. The Investor journey is further segmented into "Emerging" vs. "Institutional" personas, compared visually with cards and a chart. The HOA journey is structured as a "Board Member Survival Kit" with interactive elements to explore their unique pain points. This structure was chosen because it directly translates the report's core strategic insight—that these are distinct audiences with different needs—into an intuitive, non-linear user flow, preventing information overload and maximizing relevance. -->
+    <!-- Visualization & Content Choices: 1) Investor Persona Comparison: Report's Table 1 -> Goal: Compare/differentiate investor sub-personas -> Viz: Side-by-side cards and a Chart.js horizontal bar chart -> Interaction: Clicking a persona card reveals their specific toolset -> Justification: Visually represents the spectrum of investors and aids self-selection. 2) HOA Pain Point Matrix: Report's Table 2 -> Goal: Empathize with and solve HOA board member stressors -> Viz: Chart.js radar chart visualizing pain points -> Interaction: Clicking a point on the chart dynamically displays the corresponding solution text -> Justification: Transforms a static table into an interactive diagnostic tool, reinforcing the "Survival Kit" concept. 3) Site Navigation: Report's "Dual-Journey" architecture -> Goal: Create distinct user paths -> Method: JS-driven content visibility toggling -> Interaction: Main buttons hide the landing view and show the relevant persona section -> Justification: The most direct implementation of the report's primary strategic recommendation. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
-        :root {
-            --bg-color: #FEFAE5;
-            --accent-color: #DD5B42;
-            --text-color: #A54432;
-            --card-bg: #FFFFFF;
-        }
-        body {
-            font-family: 'Work Sans', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-        }
-        h1, h2, h3, h4, h5, h6 {
-            color: var(--text-color);
-        }
-        .header, .footer {
-            background-color: var(--card-bg);
-            border-bottom: 2px solid var(--accent-color);
-        }
-        .footer {
-            border-top: 2px solid var(--accent-color);
-            border-bottom: none;
-        }
-        .nav-button {
-            transition: all 0.3s ease;
-            color: var(--text-color);
-            padding-bottom: 4px;
-        }
-        .nav-button.active,
-        .nav-button:hover {
-            color: var(--accent-color);
-            border-bottom: 2px solid var(--accent-color);
-        }
-        .content-section { display: none; }
-        .content-section.active { display: block; }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 600px;
-            margin: auto;
-            height: 350px;
-        }
-        .info-card {
-            background-color: var(--card-bg);
-            border: 1px solid rgba(165, 68, 50, 0.2);
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-        .ai-tool-card {
-            background-color: var(--card-bg);
-            border: 2px solid var(--accent-color);
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 10px -1px rgba(221, 91, 66, 0.1);
-        }
-        .ai-tool-badge {
-            background-color: var(--accent-color);
-            color: var(--bg-color);
-            font-weight: 600;
-            padding: 2px 10px;
-            border-radius: 9999px;
-            font-size: 0.8rem;
-        }
-        .btn-primary {
-            background-color: var(--accent-color);
-            color: var(--bg-color);
-            font-weight: 600;
-            border-radius: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            transition: background-color 0.3s;
-        }
-        .btn-primary:hover {
-            background-color: var(--text-color);
-        }
-        .btn-secondary {
-            background-color: var(--text-color);
-            color: var(--bg-color);
-        }
-        .btn-secondary:hover {
-            background-color: var(--accent-color);
-        }
-        .btn-example {
-            background-color: #f0f0f0;
-            color: var(--text-color);
-            border: 1px solid rgba(165, 68, 50, 0.2);
-        }
-        .btn-example:hover {
-            background-color: #e0e0e0;
-        }
-        .btn-copy {
-            background-color: #e2e8f0;
-            color: var(--text-color);
-            border-radius: 0.375rem;
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-        .btn-copy:hover {
-            background-color: #cbd5e0;
-        }
-        input, select, textarea {
-            border: 1px solid rgba(165, 68, 50, 0.3);
-            border-radius: 0.5rem;
-            padding: 0.5rem;
-            width: 100%;
-        }
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 2px rgba(221, 91, 66, 0.2);
-            outline: none;
-        }
-        .loader {
-            border: 4px solid rgba(165, 68, 50, 0.2);
-            border-top: 4px solid var(--accent-color);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .generated-image {
-            border: 4px solid var(--card-bg);
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-            border-radius: 0.5rem;
-        }
-        #myProjectPanel {
-            transition: transform 0.3s ease-in-out;
-        }
-        .copy-success-msg {
-            color: #2f855a;
-            font-size: 0.875rem;
-            margin-left: 0.5rem;
-            display: none;
-        }
-        @media print {
-            body * { visibility: hidden; }
-            #projectPanelContent, #projectPanelContent * { visibility: visible; }
-            #projectPanelContent {
-                position: absolute; left: 0; top: 0; width: 100%; color: #000;
-            }
-            .no-print { display: none; }
-            h1, h2, h3, h4 { color: #000; }
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 350px; max-height: 400px; }
+        @media (max-width: 768px) { .chart-container { height: 300px; } }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        .fade-out { animation: fadeOut 0.5s ease-in-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-10px); } }
+        .active-nav { color: #0f766e; border-bottom-color: #0f766e; }
+        .inactive-nav { color: #475569; border-bottom-color: transparent; }
     </style>
 </head>
-<body class="antialiased">
+<body class="bg-stone-50 text-slate-800">
 
-    <div id="onboardingBanner" class="bg-white p-3 text-center text-sm relative no-print">
-        <span>Welcome! Explore industry trends and use our ✨ AI tools to start your remodeling journey.</span>
-        <button onclick="document.getElementById('onboardingBanner').style.display='none'" class="absolute top-1/2 right-4 -translate-y-1/2 font-bold text-lg">×</button>
-    </div>
+    <main class="container mx-auto px-4 py-8 md:py-12">
 
-    <header class="header sticky top-0 z-10 no-print">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex-shrink-0">
-                    <h1 class="text-xl md:text-2xl font-bold">Bellwether Homes Report</h1>
-                </div>
-                <nav class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-4">
-                        <button data-target="trust-gap" class="nav-button active">The Trust Gap</button>
-                        <button data-target="project-lifecycle" class="nav-button">The Project Lifecycle</button>
-                        <button data-target="megatrends" class="nav-button">Industry Trends & Tools</button>
-                    </div>
-                </nav>
+        <!-- Initial User Choice Section -->
+        <section id="initial-choice" class="text-center max-w-3xl mx-auto">
+            <h1 class="text-4xl md:text-5xl font-bold text-slate-900 mb-4">The Property Leadership OS</h1>
+            <p class="text-lg text-slate-600 mb-8">
+                An integrated digital resource for the complex job of property leadership. Select your role to access a tailored experience with tools and insights designed for your unique challenges.
+            </p>
+            <div class="flex flex-col md:flex-row gap-4 justify-center">
+                <button id="select-investor" class="w-full md:w-auto bg-sky-700 hover:bg-sky-800 text-white font-bold py-4 px-8 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                    I am a Multifamily Investor
+                </button>
+                <button id="select-hoa" class="w-full md:w-auto bg-teal-700 hover:bg-teal-800 text-white font-bold py-4 px-8 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                    I am an HOA Board Member
+                </button>
             </div>
+        </section>
+
+        <!-- Back to Home Button -->
+        <div id="back-button-container" class="hidden my-6">
+             <button id="back-to-choice" class="text-sky-700 hover:text-sky-900 font-semibold transition-colors">
+                &larr; Back to Role Selection
+            </button>
         </div>
-    </header>
 
-    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <section id="trust-gap" class="content-section active">
+        <!-- Multifamily Investor Journey -->
+        <section id="investor-journey" class="hidden">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold">The Trust Gap: Homeowner & Contractor Perspectives</h2>
-                <p class="mt-4 max-w-3xl mx-auto text-lg">A significant "trust gap" exists between homeowners and contractors, fueled by negative past experiences and persistent stereotypes. This section explores the dual perspectives that create this divide and provides tools to bridge it.</p>
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Multifamily Investor Central</h2>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">This is your hub as a Business Optimizer. Whether you're buying your first duplex or managing a nationwide portfolio, this space provides the strategic insights and tools you need to maximize ROI and asset value. First, identify your current focus.</p>
             </div>
-            <div class="info-card p-6 md:p-8 mb-8 text-sm space-y-3">
-                <h3 class="text-xl font-bold mb-2">The Weight of Negative Perceptions</h3>
-                <p>Homeowners often approach renovation projects with caution, largely because <strong class="text-red-500">42% have had a negative experience with a contractor in the past.</strong> This cultivates an environment of skepticism. Common fears include cost overruns, poor quality workmanship, lack of communication, and project delays. These anxieties are rooted in frequent complaints about shoddy work (20% of homeowners), surprise costs (18%), and poor communication (25%), leading to significant stress and financial burdens.</p>
-                <p>The "trust gap" is a major concern, with nearly 30% of homeowners reporting negative experiences from professionals sourced via third-party platforms. This mistrust is a key factor driving some homeowners towards DIY projects, a trend that comes with its own set of risks.</p>
-            </div>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="ai-tool-card p-6 md:p-8">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-2xl font-bold">Sentiment Analyzer</h3>
-                        <span class="ai-tool-badge">✨ Data Tool</span>
-                    </div>
-                    <p class="text-center text-sm mb-6">Explore the differing perspectives that contribute to the "trust gap" by toggling between common homeowner and contractor complaints.</p>
-                    <div class="chart-container"><canvas id="grievancesChart"></canvas></div>
-                    <div class="text-center mt-6">
-                        <button id="toggleGrievancesBtn" class="btn-primary text-sm">Show Contractor Grievances</button>
-                    </div>
+
+            <div class="grid md:grid-cols-2 gap-8 items-start mb-12">
+                <!-- Emerging Investor Card -->
+                <div id="emerging-investor-card" class="bg-white p-6 rounded-lg shadow-md border-2 border-transparent hover:border-sky-500 cursor-pointer transition-all">
+                    <h3 class="text-2xl font-bold text-sky-800 mb-3">The Emerging Investor</h3>
+                    <p class="text-slate-600 mb-4">For the hands-on operator managing a job, focused on tactical execution and avoiding catastrophic mistakes on the path to financial freedom.</p>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-start"><span class="font-semibold text-sky-700 mr-2 w-28 shrink-0">Core Challenge:</span> <span class="text-slate-700">The "snowball effect" of unforeseen repairs and cash flow crises.</span></li>
+                        <li class="flex items-start"><span class="font-semibold text-sky-700 mr-2 w-28 shrink-0">Info Sources:</span> <span class="text-slate-700">Peer forums (BiggerPockets, Reddit), which can be high-risk.</span></li>
+                    </ul>
                 </div>
-                <div class="ai-tool-card p-6 md:p-8">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-2xl font-bold">DIY vs. Pro Calculator</h3>
-                        <span class="ai-tool-badge">✨ Data Tool</span>
-                    </div>
-                    <p class="text-center text-sm mb-6">The desire to avoid contractors pushes many to DIY. But what are the real trade-offs? See the data below. <strong class="text-red-500">20% of all DIY projects require a professional to fix mistakes.</strong></p>
-                    <div class="mt-4 grid grid-cols-2 gap-4 text-center">
-                        <div>
-                            <h4 class="font-bold">DIY Approach</h4>
-                            <ul class="text-xs space-y-2 mt-2">
-                                <li class="bg-green-100 text-green-800 p-2 rounded"><strong>Pro:</strong> Upfront Cost Savings</li>
-                                <li class="bg-green-100 text-green-800 p-2 rounded"><strong>Pro:</strong> Control Over Timeline</li>
-                                <li class="bg-red-100 text-red-800 p-2 rounded"><strong>Risk:</strong> High Chance of Errors</li>
-                                <li class="bg-red-100 text-red-800 p-2 rounded"><strong>Risk:</strong> Longer Project Duration</li>
-                                <li class="bg-red-100 text-red-800 p-2 rounded"><strong>Risk:</strong> No Workmanship Warranty</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 class="font-bold">Professional Hire</h4>
-                            <ul class="text-xs space-y-2 mt-2">
-                                <li class="bg-red-100 text-red-800 p-2 rounded"><strong>Con:</strong> Higher Upfront Cost</li>
-                                 <li class="bg-red-100 text-red-800 p-2 rounded"><strong>Con:</strong> Scheduling Dependency</li>
-                                <li class="bg-green-100 text-green-800 p-2 rounded"><strong>Pro:</strong> Expertise & Quality</li>
-                                <li class="bg-green-100 text-green-800 p-2 rounded"><strong>Pro:</strong> Speed and Efficiency</li>
-                                <li class="bg-green-100 text-green-800 p-2 rounded"><strong>Pro:</strong> Installation Warranties</li>
-                            </ul>
-                        </div>
-                    </div>
+                <!-- Institutional Strategist Card -->
+                <div id="institutional-strategist-card" class="bg-white p-6 rounded-lg shadow-md border-2 border-transparent hover:border-sky-500 cursor-pointer transition-all">
+                    <h3 class="text-2xl font-bold text-sky-800 mb-3">The Institutional Strategist</h3>
+                     <p class="text-slate-600 mb-4">For the portfolio manager managing capital, focused on macro strategy, risk-adjusted returns, and operational scale.</p>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex items-start"><span class="font-semibold text-sky-700 mr-2 w-28 shrink-0">Core Challenge:</span> <span class="text-slate-700">Macroeconomic headwinds, capital market volatility, and compliance at scale.</span></li>
+                        <li class="flex items-start"><span class="font-semibold text-sky-700 mr-2 w-28 shrink-0">Info Sources:</span> <span class="text-slate-700">Industry reports (NAA, NMHC), trade publications, proprietary data.</span></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow-lg mb-12">
+                 <h3 class="text-xl font-bold text-center text-slate-800 mb-4">Investor Persona Comparison: Key Distinctions</h3>
+                <p class="text-center text-slate-600 text-sm mb-4">While both are investors, their focus and information needs differ dramatically. This chart highlights where their priorities lie, illustrating why a one-size-fits-all approach fails.</p>
+                <div class="chart-container">
+                    <canvas id="investorComparisonChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Investor Tool Section -->
+            <div id="investor-tool-section" class="hidden">
+                 <div class="bg-sky-50 p-8 rounded-lg">
+                    <h3 id="investor-tool-title" class="text-2xl font-bold text-sky-900 mb-4"></h3>
+                    <div id="investor-tool-content"></div>
                 </div>
             </div>
         </section>
 
-        <section id="project-lifecycle" class="content-section">
+        <!-- HOA Board Member Journey -->
+        <section id="hoa-journey" class="hidden">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold">The Project Lifecycle: From Planning to Protection</h2>
-                <p class="mt-4 max-w-3xl mx-auto text-lg">A successful project requires more than just construction; it demands diligent planning, clear communication, and ongoing maintenance to protect your investment.</p>
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">HOA Board HQ</h2>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">This is your Board Member Survival Kit. As an "Accidental Executive," you face unique pressures. This resource provides practical, step-by-step guidance to help you navigate your role with confidence and mitigate risk.</p>
             </div>
-            <div class="info-card p-6 md:p-8 mb-8 text-sm space-y-3">
-                 <h3 class="text-xl font-bold mb-2">The Unseen Value of Siding Maintenance</h3>
-                <p>Your home's exterior is its first line of defense. Well-maintained siding does more than boost curb appeal—it delivers a strong Return on Investment (ROI), often recouping <strong class="text-green-600">70-87% of its cost at resale.</strong> More importantly, it acts as a crucial barrier against water intrusion, which can lead to costly structural damage, mold growth, and a decrease in home value by 10-25%. A well-maintained exterior is also key to energy efficiency, reducing air leakage and lowering utility bills. Neglecting siding isn't just an aesthetic issue; it's a financial risk.</p>
-            </div>
-
-            <div class="ai-tool-card p-6 md:p-8 mb-12">
-                <div class="flex justify-between items-center mb-2">
-                    <h3 class="text-2xl font-bold">AI Design Studio</h3>
-                    <span class="ai-tool-badge">✨ AI Tool</span>
-                </div>
-                <p class="text-sm mb-4">Need inspiration? Describe your home and desired style to generate unique design ideas, complete with cost estimates and concept images from multiple angles.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="homeStyle" class="block text-sm font-medium">Home Style</label>
-                        <input type="text" id="homeStyle" placeholder="e.g., A 1980s ranch with faded blue siding" class="mt-1 w-full p-2">
-                    </div>
-                    <div>
-                        <label for="desiredLook" class="block text-sm font-medium">Desired Look</label>
-                        <input type="text" id="desiredLook" placeholder="e.g., Warm and modern with natural wood accents" class="mt-1 w-full p-2">
+            
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-bold text-center text-slate-800 mb-4">Board Member Stress & Risk Profile</h3>
+                    <p class="text-center text-slate-600 text-sm mb-4">The role of a volunteer board member is defined by a unique set of stressors. This chart visualizes the primary areas of concern. Click on any point to see the OS solution designed to address that specific challenge.</p>
+                    <div class="chart-container">
+                        <canvas id="hoaPainPointChart"></canvas>
                     </div>
                 </div>
-                 <div class="flex items-center gap-4 mt-4">
-                    <button id="generateIdeasBtn" class="w-full btn-primary">Generate Ideas & Costs</button>
-                    <button id="showDesignExampleBtn" class="w-full btn-example p-3 rounded-md text-sm">Show Example</button>
+                <div id="hoa-solution-panel" class="bg-white p-8 rounded-lg shadow-lg min-h-[400px] flex flex-col justify-center transition-all duration-300">
+                    <h3 id="hoa-solution-title" class="text-2xl font-bold text-teal-800 mb-3">Your Board's Toughest Challenges</h3>
+                    <p id="hoa-solution-text" class="text-slate-700">The job of an HOA board member is complex and often thankless, driven by a duty to the community and a fear of liability. This platform is built to provide clarity and reduce anxiety. Explore the chart to see how we help you tackle each challenge head-on.</p>
                 </div>
-                <div id="ideasLoader" class="loader" style="display: none;"></div>
-                <div id="ideasOutput" class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6"></div>
-                <div id="imageLoader" class="loader" style="display: none;"></div>
-                <div id="imageOutput" class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4"></div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                 <div class="ai-tool-card p-6 md:p-8">
-                     <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-2xl font-bold">AI Project Planner & Vetting Assistant</h3>
-                        <span class="ai-tool-badge">✨ AI Tool</span>
+            <div class="mt-12 bg-white p-8 rounded-lg shadow-lg">
+                 <h3 class="text-2xl font-bold text-slate-800 mb-6 text-center">The Board Member Survival Kit: Core Modules</h3>
+                 <div class="grid md:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <div class="mx-auto bg-teal-100 text-teal-700 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                            <span class="text-3xl font-bold">§</span>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-2">Governance & Legal</h4>
+                        <p class="text-slate-600">Demystify your fiduciary duty, learn to run legally compliant meetings, and understand your governing documents in plain English.</p>
                     </div>
-                     <p class="text-sm mb-4">Describe your project, and our AI will generate a step-by-step plan, key questions for your contractor, a timeline, and a <strong class="text-red-500">crucial contract checklist</strong> to protect your investment.</p>
-                     <label for="projectDescription" class="block text-sm font-medium">Project Description</label>
-                     <textarea id="projectDescription" rows="3" placeholder="e.g., Replace all siding and windows..." class="mt-1 block w-full p-2"></textarea>
-                     <div class="flex items-center gap-4 mt-4">
-                        <button id="generatePlanBtn" class="w-full btn-primary">Generate Comprehensive Plan</button>
-                        <button id="showPlanExampleBtn" class="w-full btn-example p-3 rounded-md text-sm">Example</button>
+                    <div class="text-center">
+                         <div class="mx-auto bg-teal-100 text-teal-700 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                            <span class="text-3xl font-bold">$</span>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-2">Financial Management</h4>
+                        <p class="text-slate-600">Actionable guides for non-accountants on budgeting, financial reporting, and the critical task of reserve funding.</p>
                     </div>
-                     <div id="planLoader" class="loader" style="display: none;"></div>
-                     <div id="planOutput" class="mt-6 text-sm"></div>
-                </div>
-                 <div class="ai-tool-card p-6 md:p-8">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-2xl font-bold">AI Contractor Interview Coach</h3>
-                        <span class="ai-tool-badge">✨ AI Tool</span>
+                    <div class="text-center">
+                         <div class="mx-auto bg-teal-100 text-teal-700 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                            <span class="text-2xl">🤝</span>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-2">Community & Operations</h4>
+                        <p class="text-slate-600">Practical playbooks for fair rule enforcement, vendor management, and effective resident communication.</p>
                     </div>
-                    <p class="text-sm mb-4">Prepare for one of the most critical steps. Describe your project and biggest concerns to get tailored interview questions for potential contractors.</p>
-                    <label for="interviewProject" class="block text-sm font-medium">Your Project</label>
-                    <input type="text" id="interviewProject" placeholder="e.g., Full siding replacement on a two-story house" class="mt-1 p-2">
-                    <label for="interviewConcerns" class="block text-sm font-medium mt-4">Your Biggest Concerns</label>
-                    <input type="text" id="interviewConcerns" placeholder="e.g., Sticking to the budget, job site cleanliness" class="mt-1 p-2">
-                    <div class="flex items-center gap-4 mt-4">
-                        <button id="generateQuestionsBtn" class="w-full btn-primary">Generate Interview Questions</button>
-                    </div>
-                    <div id="questionsLoader" class="loader" style="display: none;"></div>
-                    <div id="questionsOutput" class="mt-6 text-sm"></div>
-                </div>
-            </div>
-             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                 <div class="ai-tool-card p-6 md:p-8">
-                     <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-2xl font-bold">AI Warranty Analyzer</h3>
-                        <span class="ai-tool-badge">✨ AI Tool</span>
-                    </div>
-                     <p class="text-sm mb-4">Confused by legal jargon? Paste a product or contractor warranty below to get a simplified explanation of what's covered, what's not, and what actions could void it.</p>
-                     <label for="warrantyText" class="block text-sm font-medium">Paste Warranty Text Here</label>
-                     <textarea id="warrantyText" rows="5" placeholder="e.g., 'This limited warranty covers defects in manufacturing for a period of...'" class="mt-1 block w-full p-2"></textarea>
-                     <div class="flex items-center gap-4 mt-4">
-                        <button id="analyzeWarrantyBtn" class="w-full btn-primary">Analyze Warranty</button>
-                    </div>
-                     <div id="warrantyLoader" class="loader" style="display: none;"></div>
-                     <div id="warrantyOutput" class="mt-6 text-sm"></div>
-                </div>
-                 <div class="ai-tool-card p-6 md:p-8">
-                     <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-2xl font-bold">AI Project Risk Forecaster</h3>
-                        <span class="ai-tool-badge">✨ AI Tool</span>
-                    </div>
-                     <p class="text-sm mb-4">Identify potential issues before they arise. Describe your project, and our AI will forecast potential risks specific to the Denver climate and recommend mitigation strategies.</p>
-                     <label for="riskDescription" class="block text-sm font-medium">Project Description for Risk Analysis</label>
-                     <textarea id="riskDescription" rows="5" placeholder="e.g., Installing dark-colored fiber cement siding on the south side of our house." class="mt-1 block w-full p-2"></textarea>
-                     <div class="flex items-center gap-4 mt-4">
-                        <button id="generateRiskBtn" class="w-full btn-primary">Forecast Risks</button>
-                    </div>
-                     <div id="riskLoader" class="loader" style="display: none;"></div>
-                     <div id="riskOutput" class="mt-6 text-sm"></div>
-                </div>
+                 </div>
             </div>
         </section>
 
-        <section id="megatrends" class="content-section">
-              <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold">Industry Trends & Tools</h2>
-                <p class="mt-4 max-w-3xl mx-auto text-lg">Explore the key economic indicators, labor challenges, and sustainability incentives shaping the home improvement market.</p>
-              </div>
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="ai-tool-card p-6 md:p-8">
-                      <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-2xl font-bold">Economic Trends Explorer</h3>
-                        <span class="ai-tool-badge">✨ Data Tool</span>
-                    </div>
-                      <p class="text-sm mb-4">Visualize the key economic forces driving the remodeling industry. High interest rates and an aging housing stock create a unique market where homeowners are choosing to "love it" rather than "list it."</p>
-                    <h4 class="font-bold mt-4">US Remodeling Market Size ($B)</h4>
-                    <div class="chart-container" style="height:250px"><canvas id="trendsMarketSizeChart"></canvas></div>
-                    <div class="grid grid-cols-2 gap-4 mt-6 text-center">
-                        <div class="info-card p-3">
-                            <p class="text-sm font-semibold">Median Age of US Homes</p>
-                            <p class="text-3xl font-bold" style="color:var(--accent-color);">44</p>
-                            <p class="text-xs">Years (Record High)</p>
-                        </div>
-                         <div class="info-card p-3">
-                            <label for="rateIncrease" class="block text-sm font-semibold">Rate Impact Calculator</label>
-                            <input type="number" id="rateIncrease" value="0.25" step="0.01" class="w-20 text-center mx-auto my-1">
-                            <p class="text-xs">A <span id="rateDisplay">0.25</span>% rate increase can price <strong id="impactDisplay" class="text-lg">1.1M</strong> households out of the new home market, fueling remodels.</p>
-                        </div>
-                    </div>
-                </div>
-                 <div class="ai-tool-card p-6 md:p-8">
-                      <div class="flex justify-between items-center mb-2">
-                        <h3 class="text-2xl font-bold">AI Rebate & Permit Assistant</h3>
-                        <span class="ai-tool-badge">✨ AI Tool</span>
-                    </div>
-                      <p class="text-sm mb-4">Navigate local regulations and find savings. Describe your project to get a preliminary list of likely permits for Denver and discover potential energy efficiency rebates.</p>
-                      <label for="localAssistDescription" class="block text-sm font-medium">Project Description for Rebate/Permit Check</label>
-                      <textarea id="localAssistDescription" rows="3" placeholder="e.g., Replacing all windows with new ENERGY STAR models and building a new front deck." class="mt-1 block w-full p-2"></textarea>
-                      <div class="flex items-center gap-4 mt-4">
-                        <button id="generateLocalAssistBtn" class="w-full btn-primary">Get Local Info</button>
-                    </div>
-                      <div id="localAssistLoader" class="loader" style="display: none;"></div>
-                      <div id="localAssistOutput" class="mt-6 text-sm"></div>
-                </div>
-            </div>
-        </section>
     </main>
     
-    <button id="projectPanelToggle" class="no-print fixed bottom-4 right-4 btn-primary rounded-full w-16 h-16 flex items-center justify-center text-2xl shadow-lg z-20">📋</button>
-    <div id="myProjectPanel" class="no-print fixed top-0 right-0 h-full w-full md:w-1/3 bg-white shadow-2xl p-6 transform translate-x-full z-30 overflow-y-auto">
-         <button onclick="document.getElementById('myProjectPanel').classList.add('translate-x-full')" class="absolute top-4 right-4 font-bold text-2xl">&times;</button>
-         <h2 class="text-2xl font-bold mb-4">My Project Brief</h2>
-         <div id="projectPanelContent" class="space-y-6"></div>
-         <div class="mt-6 flex gap-4">
-            <button id="copyProjectBtn" class="w-full btn-secondary p-3 rounded-md text-sm">Copy Summary</button>
-            <button onclick="window.print()" class="w-full btn-secondary p-3 rounded-md text-sm">Print / Save PDF</button>
-        </div>
-         <span id="copyProjectSuccess" class="mt-2 text-sm" style="display: none;">Copied to clipboard!</span>
-    </div>
-
-    <footer class="footer mt-12 no-print">
-        <div class="container mx-auto py-6 px-4 text-center text-sm">
-            <p>Interactive Report by <a href="#" class="font-semibold" style="color: var(--accent-color);">Bellwether Homes</a>, Denver, CO.</p>
-            <p class="mt-1">&copy; 2025 Bellwether Homes. All Rights Reserved.</p>
-        </div>
-    </footer>
-    
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        let projectResults = { designIdeas: [], projectPlan: null, emailDraft: '', permitInfo: '', rebateInfo: '', materialForecast: '', interviewQuestions: '' };
-        let grievancesChart = null;
+        document.addEventListener('DOMContentLoaded', () => {
+            const initialChoiceSection = document.getElementById('initial-choice');
+            const investorJourneySection = document.getElementById('investor-journey');
+            const hoaJourneySection = document.getElementById('hoa-journey');
+            const backButtonContainer = document.getElementById('back-button-container');
 
-        const navButtons = document.querySelectorAll('.nav-button');
-        const contentSections = document.querySelectorAll('.content-section');
-        function showSection(targetId) {
-            navButtons.forEach(button => button.classList.toggle('active', button.dataset.target === targetId));
-            contentSections.forEach(section => section.classList.toggle('active', section.id === targetId));
-        }
-        navButtons.forEach(button => button.addEventListener('click', () => showSection(button.dataset.target)));
-
-        async function callGemini(prompt, isJson = false) {
-            const apiKey = ""; 
-            const model = 'gemini-1.5-flash';
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-            const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
-            if (isJson) payload.generationConfig = { responseMimeType: "application/json" };
+            const selectInvestorBtn = document.getElementById('select-investor');
+            const selectHoaBtn = document.getElementById('select-hoa');
+            const backToChoiceBtn = document.getElementById('back-to-choice');
             
-            try {
-                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const result = await response.json();
-                if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) return result.candidates[0].content.parts[0].text;
-                return isJson ? '{"error": "API returned empty response."}' : "API returned empty response.";
-            } catch (error) {
-                console.error("Gemini API call failed:", error);
-                return isJson ? `{"error": "Failed to contact AI. ${error.message}"}` : `Failed to contact AI. ${error.message}`;
-            }
-        }
+            const emergingInvestorCard = document.getElementById('emerging-investor-card');
+            const institutionalStrategistCard = document.getElementById('institutional-strategist-card');
+            const investorToolSection = document.getElementById('investor-tool-section');
+            const investorToolTitle = document.getElementById('investor-tool-title');
+            const investorToolContent = document.getElementById('investor-tool-content');
 
-        async function callImagen(prompt) {
-            const apiKey = "";
-            const imageModel = "imagegeneration@006";
-            const projectId = "YOUR_GCP_PROJECT_ID";
-            const apiUrl = `https://us-central1-aiplatform.googleapis.com/v1/projects/${projectId}/locations/us-central1/publishers/google/models/${imageModel}:predict`;
-            const payload = { instances: [{ "prompt": prompt }], parameters: { "sampleCount": 1 } };
-            try {
-                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Authorization': `Bearer $(gcloud auth print-access-token)
-`, 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const result = await response.json();
-                if (result.predictions && result.predictions[0]?.bytesBase64Encoded) return `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
-                return null;
-            } catch (error) {
-                console.error("Imagen API call failed:", error);
-                return null;
-            }
-        }
-        
-        function showCopySuccess(button) {
-            const successMsg = button.nextElementSibling;
-            if (successMsg && successMsg.classList.contains('copy-success-msg')) {
-                successMsg.style.display = 'inline';
-                setTimeout(() => { successMsg.style.display = 'none'; }, 2000);
-            }
-        }
+            let investorChart = null;
+            let hoaChart = null;
 
-        async function generateImages(idea, buttonElement) {
-            buttonElement.textContent = 'Generating...';
-            buttonElement.disabled = true;
-            document.getElementById('imageLoader').style.display = 'block';
-            const imageOutput = document.getElementById('imageOutput');
-            imageOutput.innerHTML = '';
-            const basePrompt = `Photorealistic architectural rendering of a ${idea.title} home in a Denver, Colorado neighborhood. The exterior features ${idea.siding} with a color palette of ${idea.colors}. Key architectural details include ${idea.features}. Bright, natural daylight. High-resolution.`;
-            const prompt1 = `${basePrompt} The camera angle is a direct, front-facing view from the street.`;
-            const prompt2 = `${basePrompt} The camera angle is a three-quarter perspective view from the corner of the property, showing the front facade and one side of the house. Include part of the yard and driveway to show scale and surroundings.`;
-            const prompt3 = `${basePrompt} The camera angle is the rear three-quarter perspective view of the house, showing the back and other side.`;
+            const investorTools = {
+                emerging: {
+                    title: "Essential Tool: First Deal Red Flag Analyzer",
+                    content: `<p class="text-slate-700 mb-4">This checklist-based wizard helps you combat the "snowball effect" that plagues new investors. Input key details of a potential property (age, construction, deferred maintenance) and the tool generates a "Risk Score" with clear explanations, highlighting hidden costs and operational challenges.</p>
+                              <p class="font-semibold text-sky-800">This transforms our site from an information provider into your strategic due diligence partner, helping you avoid a disastrous first deal.</p>`
+                },
+                institutional: {
+                    title: "Essential Tool: Value-Add ROI Modeler",
+                    content: `<p class="text-slate-700 mb-4">A sophisticated tool for portfolio managers to model the financial impact of renovation scenarios. Input costs for different upgrade packages, projected rent premiums, and market cap rates. The modeler outputs a comprehensive pro forma, projecting the impact on NOI, cash-on-cash return, and total asset value.</p>
+                              <p class="font-semibold text-sky-800">This provides the quantitative justification required for high-stakes capital allocation decisions.</p>`
+                }
+            };
             
-            const [imageUrl1, imageUrl2, imageUrl3] = await Promise.all([callImagen(prompt1), callImagen(prompt2), callImagen(prompt3)]);
-            
-            document.getElementById('imageLoader').style.display = 'none';
-            if (imageUrl1 || imageUrl2 || imageUrl3) {
-                 if(imageUrl1) imageOutput.innerHTML += `<div><img src="${imageUrl1}" alt="AI-generated front view of ${idea.title}" class="generated-image mx-auto max-w-full h-auto"><button class="download-btn mt-2 btn-copy" data-url="${imageUrl1}" data-name="${idea.title.replace(/\s+/g, '-')}-front.png">Download Front</button></div>`;
-                 if(imageUrl2) imageOutput.innerHTML += `<div><img src="${imageUrl2}" alt="AI-generated angle view of ${idea.title}" class="generated-image mx-auto max-w-full h-auto"><button class="download-btn mt-2 btn-copy" data-url="${imageUrl2}" data-name="${idea.title.replace(/\s+/g, '-')}-angle.png">Download Angle</button></div>`;
-                 if(imageUrl3) imageOutput.innerHTML += `<div><img src="${imageUrl3}" alt="AI-generated rear view of ${idea.title}" class="generated-image mx-auto max-w-full h-auto"><button class="download-btn mt-2 btn-copy" data-url="${imageUrl3}" data-name="${idea.title.replace(/\s+/g, '-')}-rear.png">Download Rear</button></div>`;
-                 document.querySelectorAll('.download-btn').forEach(btn => btn.addEventListener('click', (e) => downloadImage(e.target.dataset.url, e.target.dataset.name)));
-            } else {
-                imageOutput.innerHTML = `<p>Sorry, the images could not be generated.</p>`;
+            function showInvestorTool(type) {
+                investorToolTitle.innerHTML = investorTools[type].title;
+                investorToolContent.innerHTML = investorTools[type].content;
+                investorToolSection.classList.remove('hidden');
+                investorToolSection.classList.add('fade-in');
+                 investorToolSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-            buttonElement.textContent = '✨ Generate Concept Images (3)';
-            buttonElement.disabled = false;
-        }
 
-        function downloadImage(url, filename) {
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        }
-        
-        document.getElementById('generateIdeasBtn').addEventListener('click', async () => {
-            const homeStyle = document.getElementById('homeStyle').value;
-            const desiredLook = document.getElementById('desiredLook').value;
-            if (!homeStyle || !desiredLook) { alert('Please fill out both fields.'); return; }
-            document.getElementById('ideasOutput').innerHTML = '';
-            document.getElementById('imageOutput').innerHTML = '';
-            document.getElementById('ideasLoader').style.display = 'block';
-            const prompt = `As an expert exterior designer for Bellwether Homes in Denver, generate 3 distinct exterior design ideas for a "${homeStyle}" seeking a "${desiredLook}" aesthetic. For each idea, provide a "title", "siding" recommendation, a "colors" palette, key "features", and an "estimatedCost" string. Use materials suited for Denver's climate. Return a single, valid JSON object with a key "ideas" which is an array of the 3 idea objects.`;
-            const responseText = await callGemini(prompt, true);
-            document.getElementById('ideasLoader').style.display = 'none';
-            try {
-                const responseJson = JSON.parse(responseText);
-                if (responseJson.ideas) {
-                    projectResults.designIdeas = responseJson.ideas;
-                    responseJson.ideas.forEach(idea => {
-                        const ideaCard = document.createElement('div');
-                        ideaCard.className = 'info-card p-4 flex flex-col justify-between';
-                        ideaCard.innerHTML = `<div><h4 class="font-bold text-lg">${idea.title}</h4><p class="mt-2 text-sm"><strong class="font-semibold">Siding:</strong> ${idea.siding}</p><p class="mt-1 text-sm"><strong class="font-semibold">Colors:</strong> ${idea.colors}</p><p class="mt-1 text-sm"><strong class="font-semibold">Features:</strong> ${idea.features}</p><p class="mt-2 font-semibold" style="color:var(--accent-color);">Est. Cost: ${idea.estimatedCost}</p></div><button class="generate-image-btn mt-4 w-full btn-secondary p-2 rounded-md text-sm">✨ Generate Concept Images (3)</button>`;
-                        ideaCard.querySelector('.generate-image-btn').onclick = (e) => generateImages(idea, e.target);
-                        document.getElementById('ideasOutput').appendChild(ideaCard);
-                    });
-                    updateMyProjectPanel();
-                } else { throw new Error(responseJson.error || "Invalid JSON structure."); }
-            } catch (e) { document.getElementById('ideasOutput').innerHTML = `<p>Error processing AI response: ${e.message}</p>`; }
-        });
-        
-        document.getElementById('showDesignExampleBtn').addEventListener('click', () => {
-             document.getElementById('homeStyle').value = 'A 1990s two-story suburban house';
-             document.getElementById('desiredLook').value = 'A contemporary farmhouse aesthetic with high-contrast colors';
-        });
+            emergingInvestorCard.addEventListener('click', () => {
+                emergingInvestorCard.classList.add('border-sky-500', 'scale-105');
+                institutionalStrategistCard.classList.remove('border-sky-500', 'scale-105');
+                showInvestorTool('emerging');
+            });
+            
+            institutionalStrategistCard.addEventListener('click', () => {
+                institutionalStrategistCard.classList.add('border-sky-500', 'scale-105');
+                emergingInvestorCard.classList.remove('border-sky-500', 'scale-105');
+                showInvestorTool('institutional');
+            });
 
-        document.getElementById('generatePlanBtn').addEventListener('click', async () => {
-              const description = document.getElementById('projectDescription').value;
-              if (!description) { alert('Please describe your project.'); return; }
-              const planOutput = document.getElementById('planOutput');
-              planOutput.innerHTML = '';
-              document.getElementById('planLoader').style.display = 'block';
-              const prompt = `A homeowner in Denver is planning a project: "${description}". Act as an expert project manager. Create a plan with four sections: a "plan" (array of step-by-step strings), "questions" (array of key questions for a contractor), a "timeline" (string, e.g., "4-6 weeks"), and a "contractChecklist" (array of strings for key items to verify in the contract). Return a single, valid JSON object.`;
-              const responseText = await callGemini(prompt, true);
-              document.getElementById('planLoader').style.display = 'none';
-              try {
-                const responseJson = JSON.parse(responseText);
-                if (responseJson.plan) {
-                    projectResults.projectPlan = responseJson;
-                    planOutput.innerHTML = `<div class="space-y-4 text-left"><h4 class="text-xl font-bold">Project Plan</h4><ul class="list-disc list-inside space-y-1">${responseJson.plan.map(item => `<li>${item}</li>`).join('')}</ul><h4 class="text-xl font-bold mt-4">Key Questions for Your Contractor</h4><ul class="list-disc list-inside space-y-1">${responseJson.questions.map(item => `<li>${item}</li>`).join('')}</ul><h4 class="text-xl font-bold mt-4">Estimated Timeline</h4><p>${responseJson.timeline}</p><h4 class="text-xl font-bold mt-4 text-red-500">Essential Contract Checklist</h4><ul class="list-disc list-inside space-y-1">${responseJson.contractChecklist.map(item => `<li>${item}</li>`).join('')}</ul></div><div class="mt-4 text-right"><button class="btn-copy">Copy Plan</button><span class="copy-success-msg">Copied!</span></div>`;
-                    planOutput.querySelector('.btn-copy').addEventListener('click', e => {
-                        let text = `Project Plan for: ${description}\n\nTimeline: ${projectResults.projectPlan.timeline}\n\nSteps:\n${projectResults.projectPlan.plan.map(s => `- ${s}`).join('\n')}\n\nQuestions for Contractor:\n${projectResults.projectPlan.questions.map(q => `- ${q}`).join('\n')}\n\nContract Checklist:\n${projectResults.projectPlan.contractChecklist.map(c => `- ${c}`).join('\n')}`;
-                        navigator.clipboard.writeText(text).then(() => showCopySuccess(e.target));
-                    });
-                    updateMyProjectPanel();
-                } else { throw new Error(responseJson.error || "Invalid JSON structure."); }
-              } catch(e) { planOutput.innerHTML = `<p>Error processing AI response: ${e.message}</p>`; }
-        });
+            const switchView = (showSection) => {
+                initialChoiceSection.classList.add('fade-out');
+                setTimeout(() => {
+                    initialChoiceSection.classList.add('hidden');
+                    initialChoiceSection.classList.remove('fade-out');
+                    
+                    backButtonContainer.classList.remove('hidden');
+                    backButtonContainer.classList.add('fade-in');
 
-        document.getElementById('showPlanExampleBtn').addEventListener('click', () => {
-             document.getElementById('projectDescription').value = 'We want to replace our old, cracked stucco with new fiber cement siding, replace five drafty windows, and paint the entire exterior of our 2,000 sq ft house in Denver.';
-        });
+                    if (showSection === 'investor') {
+                        investorJourneySection.classList.remove('hidden');
+                        investorJourneySection.classList.add('fade-in');
+                        renderInvestorChart();
+                    } else if (showSection === 'hoa') {
+                        hoaJourneySection.classList.remove('hidden');
+                        hoaJourneySection.classList.add('fade-in');
+                        renderHoaChart();
+                    }
+                }, 500);
+            };
 
-        document.getElementById('generateQuestionsBtn').addEventListener('click', async () => {
-            const project = document.getElementById('interviewProject').value;
-            const concerns = document.getElementById('interviewConcerns').value;
-            if (!project || !concerns) { alert('Please describe your project and your concerns.'); return; }
-            const questionsOutput = document.getElementById('questionsOutput');
-            questionsOutput.innerHTML = '';
-            document.getElementById('questionsLoader').style.display = 'block';
-            const prompt = `I am a homeowner preparing to interview contractors for a project: "${project}". My biggest concerns are: "${concerns}". Generate a list of 5-7 insightful interview questions I should ask to address my specific concerns and properly vet a contractor's suitability for this job.`;
-            const response = await callGemini(prompt);
-            document.getElementById('questionsLoader').style.display = 'none';
-            projectResults.interviewQuestions = response;
-            questionsOutput.innerHTML = response.replace(/\n/g, '<br>') + '<div class="mt-4 text-right"><button class="btn-copy">Copy Questions</button><span class="copy-success-msg">Copied!</span></div>';
-            questionsOutput.querySelector('.btn-copy').addEventListener('click', e => navigator.clipboard.writeText(projectResults.interviewQuestions).then(() => showCopySuccess(e.target)));
-            updateMyProjectPanel();
-        });
+            const resetView = () => {
+                investorJourneySection.classList.add('fade-out');
+                hoaJourneySection.classList.add('fade-out');
+                backButtonContainer.classList.add('fade-out');
 
-        document.getElementById('analyzeWarrantyBtn').addEventListener('click', async () => {
-              const warrantyText = document.getElementById('warrantyText').value;
-            if (!warrantyText) { alert('Please paste the warranty text to be analyzed.'); return; }
-            const warrantyOutput = document.getElementById('warrantyOutput');
-            warrantyOutput.innerHTML = '';
-            document.getElementById('warrantyLoader').style.display = 'block';
-            const prompt = `Act as a consumer advocate specializing in home improvement. Simplify the following warranty text into plain English for a homeowner. Identify and create clear sections for: 1. What Is Covered, 2. What Is NOT Covered (Exclusions), and 3. Actions That Could Void The Warranty. Here is the warranty text: "${warrantyText}"`;
-            const response = await callGemini(prompt);
-            document.getElementById('warrantyLoader').style.display = 'none';
-            projectResults.warrantyAnalysis = response;
-            warrantyOutput.innerHTML = response.replace(/\n/g, '<br>') + '<div class="mt-4 text-right"><button class="btn-copy">Copy Analysis</button><span class="copy-success-msg">Copied!</span></div>';
-            warrantyOutput.querySelector('.btn-copy').addEventListener('click', e => navigator.clipboard.writeText(projectResults.warrantyAnalysis).then(() => showCopySuccess(e.target)));
-            updateMyProjectPanel();
-        });
+                setTimeout(() => {
+                    investorJourneySection.classList.add('hidden');
+                    hoaJourneySection.classList.add('hidden');
+                    backButtonContainer.classList.add('hidden');
 
-        document.getElementById('generateRiskBtn').addEventListener('click', async () => {
-            const description = document.getElementById('riskDescription').value;
-            if (!description) { alert('Please describe your project for risk analysis.'); return; }
-            const riskOutput = document.getElementById('riskOutput');
-            riskOutput.innerHTML = '';
-            document.getElementById('riskLoader').style.display = 'block';
-            const prompt = `Act as a home exterior specialist in Denver, CO. Analyze the following project description and identify 3-5 potential risks or "watch-outs" specific to the project and the Denver climate (e.g., hail, high UV, freeze-thaw cycles). For each risk, suggest a specific mitigation strategy or question to ask a contractor. Project: "${description}"`;
-            const response = await callGemini(prompt);
-            document.getElementById('riskLoader').style.display = 'none';
-            projectResults.riskForecast = response;
-            riskOutput.innerHTML = response.replace(/\n/g, '<br>') + '<div class="mt-4 text-right"><button class="btn-copy">Copy Risks</button><span class="copy-success-msg">Copied!</span></div>';
-            riskOutput.querySelector('.btn-copy').addEventListener('click', e => navigator.clipboard.writeText(projectResults.riskForecast).then(() => showCopySuccess(e.target)));
-            updateMyProjectPanel();
-        });
+                    investorJourneySection.classList.remove('fade-out');
+                    hoaJourneySection.classList.remove('fade-out');
+                    backButtonContainer.classList.remove('fade-out');
+                    
+                    initialChoiceSection.classList.remove('hidden');
+                    initialChoiceSection.classList.add('fade-in');
 
-        document.getElementById('generateLocalAssistBtn').addEventListener('click', async () => {
-            const description = document.getElementById('localAssistDescription').value;
-            if (!description) { alert('Please describe your project.'); return; }
-            const localAssistOutput = document.getElementById('localAssistOutput');
-            localAssistOutput.innerHTML = '';
-            document.getElementById('localAssistLoader').style.display = 'block';
-            const today = new Date().toLocaleDateString();
-            const permitPrompt = `As an expert on Denver, CO building regulations, provide a helpful, preliminary list of likely permits required for the following project: "${description}". For each likely permit, give a simple explanation of why it's needed. Include a clear disclaimer that this is not legal advice and must be verified.`;
-            const rebatePrompt = `As of today, ${today}, I am a homeowner in Denver, Colorado planning to do the following energy-efficient project: "${description}". Research and list potential local (City of Denver), state (Colorado), and federal rebates or tax credits. Include the program name and a brief description. Include a disclaimer about verifying eligibility.`;
-            const [permitResponse, rebateResponse] = await Promise.all([callGemini(permitPrompt), callGemini(rebatePrompt)]);
-            document.getElementById('localAssistLoader').style.display = 'none';
-            projectResults.permitInfo = permitResponse;
-            projectResults.rebateInfo = rebateResponse;
-            let combinedResponse = `<strong>Permit Information:</strong><br>${permitResponse.replace(/\n/g, '<br>')}<br><br><strong>Rebate Information:</strong><br>${rebateResponse.replace(/\n/g, '<br>')}`;
-            localAssistOutput.innerHTML = combinedResponse + '<div class="mt-4 text-right"><button class="btn-copy">Copy Info</button><span class="copy-success-msg">Copied!</span></div>';
-            localAssistOutput.querySelector('.btn-copy').addEventListener('click', e => navigator.clipboard.writeText(permitResponse + "\n\n" + rebateResponse).then(() => showCopySuccess(e.target)));
-            updateMyProjectPanel();
-        });
-        
-        document.getElementById('projectPanelToggle').addEventListener('click', () => document.getElementById('myProjectPanel').classList.remove('translate-x-full'));
-        
-        function updateMyProjectPanel() {
-            const container = document.getElementById('projectPanelContent');
-            let html = '';
-            if (projectResults.designIdeas.length > 0) {
-                html += `<h3 class="text-xl font-bold">Design Ideas</h3>`;
-                projectResults.designIdeas.forEach(idea => {
-                    html += `<div class="info-card p-3 my-2"><h4 class="font-semibold">${idea.title}</h4><p class="text-sm"><strong>Siding:</strong> ${idea.siding}<br><strong>Cost:</strong> ${idea.estimatedCost}</p></div>`;
+                    investorToolSection.classList.add('hidden');
+                    emergingInvestorCard.classList.remove('border-sky-500', 'scale-105');
+                    institutionalStrategistCard.classList.remove('border-sky-500', 'scale-105');
+
+                }, 500);
+            };
+
+            selectInvestorBtn.addEventListener('click', () => switchView('investor'));
+            selectHoaBtn.addEventListener('click', () => switchView('hoa'));
+            backToChoiceBtn.addEventListener('click', resetView);
+
+            function renderInvestorChart() {
+                if (investorChart) {
+                    investorChart.destroy();
+                }
+                const ctx = document.getElementById('investorComparisonChart').getContext('2d');
+                investorChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Risk Profile', 'Operational Focus', 'Capital Source', 'Decision Driver'],
+                        datasets: [
+                            {
+                                label: 'Emerging Investor',
+                                data: [90, 80, 70, 75],
+                                backgroundColor: 'rgba(14, 116, 144, 0.7)',
+                                borderColor: 'rgba(14, 116, 144, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Institutional Strategist',
+                                data: [40, 30, 20, 25],
+                                backgroundColor: 'rgba(56, 189, 248, 0.7)',
+                                borderColor: 'rgba(56, 189, 248, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: { display: false },
+                                grid: { display: false },
+                                title: { display: true, text: 'Tactical/Personal Focus -> Strategic/Portfolio Focus' }
+                            },
+                             y: { grid: { display: false } }
+                        },
+                        plugins: {
+                            legend: { position: 'bottom' },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) { label += ': '; }
+                                        const val = context.raw;
+                                        const category = context.label;
+                                        if (category === 'Risk Profile') label += (val > 50 ? 'High Personal Risk' : 'Managed/Diversified');
+                                        if (category === 'Operational Focus') label += (val > 50 ? 'Hands-On/Tactical' : 'Oversight/Strategic');
+                                        if (category === 'Capital Source') label += (val > 50 ? 'Personal/Creative' : 'Institutional');
+                                        if (category === 'Decision Driver') label += (val > 50 ? 'Cash Flow/Survival' : 'Risk-Adjusted Returns');
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 });
             }
-            if (projectResults.projectPlan) {
-                html += `<h3 class="text-xl font-bold mt-4">Project Plan</h3><div class="info-card p-3 my-2"><p class="text-sm"><strong>Timeline:</strong> ${projectResults.projectPlan.timeline}</p></div>`;
-            }
-            if (projectResults.interviewQuestions) {
-                 html += `<h3 class="text-xl font-bold mt-4">Interview Questions</h3><div class="info-card p-3 my-2"><p class="text-sm italic">"${projectResults.interviewQuestions.substring(0, 150)}..."</p></div>`;
-            }
-             if (projectResults.materialForecast) {
-                html += `<h3 class="text-xl font-bold mt-4">Material Forecast</h3><div class="info-card p-3 my-2"><p class="text-sm italic">"${projectResults.materialForecast.substring(0, 150)}..."</p></div>`;
-            }
-            if (projectResults.permitInfo) {
-                html += `<h3 class="text-xl font-bold mt-4">Permit & Rebate Info</h3><div class="info-card p-3 my-2"><p class="text-sm italic">"${projectResults.permitInfo.substring(0, 150)}..."</p></div>`;
-            }
-            if (projectResults.emailDraft) {
-                html += `<h3 class="text-xl font-bold mt-4">Email Draft</h3><div class="info-card p-3 my-2"><p class="text-sm italic">"${projectResults.emailDraft.substring(0, 100)}..."</p></div>`;
-            }
-            if (html === '') {
-                html = '<p>Your generated project details will appear here as you use the AI tools.</p>';
-            }
-            container.innerHTML = html;
-        }
 
-        document.getElementById('copyProjectBtn').addEventListener('click', () => {
-            let text = "My Project Brief\n==================\n\n";
-            if (projectResults.designIdeas.length > 0) {
-                text += "DESIGN IDEAS:\n";
-                projectResults.designIdeas.forEach(idea => { text += `- ${idea.title}:\n  Siding: ${idea.siding}\n  Cost: ${idea.estimatedCost}\n\n`; });
-            }
-            if (projectResults.projectPlan) {
-                text += "PROJECT PLAN:\n";
-                text += `Timeline: ${projectResults.projectPlan.timeline}\n`;
-                text += "Steps:\n" + projectResults.projectPlan.plan.map(s => ` - ${s}`).join('\n') + "\n\n";
-                if(projectResults.projectPlan.contractChecklist) {
-                    text += "Contract Checklist:\n" + projectResults.projectPlan.contractChecklist.map(c => ` - ${c}`).join('\n') + "\n\n";
+            function renderHoaChart() {
+                if (hoaChart) {
+                    hoaChart.destroy();
                 }
+                const hoaSolutionPanel = document.getElementById('hoa-solution-panel');
+                const hoaSolutionTitle = document.getElementById('hoa-solution-title');
+                const hoaSolutionText = document.getElementById('hoa-solution-text');
+                const painPoints = {
+                    'Legal Fear': {
+                        text: "This is a primary source of anxiety. Our 'Governance & Legal' module provides plain-English guides on fiduciary duty, state-specific laws, and templates for running legally compliant meetings to dramatically reduce your personal and association liability.",
+                    },
+                    'Financial Anxiety': {
+                        text: "Managing money you're not trained for is stressful. Our 'Financial Management' module includes interactive budget templates, simple explainers for reserve studies, and calculators for special assessments, empowering you to manage finances confidently.",
+                    },
+                    'Conflict & Enforcement': {
+                        text: "Policing your neighbors is a thankless task. Our 'Community & Operations' hub offers frameworks for fair rule enforcement and communication templates to handle violations and disputes professionally and consistently, reducing community conflict.",
+                    },
+                    'Volunteer Burnout': {
+                        text: "Feeling overwhelmed is the #1 reason for turnover. We provide tools to automate tasks, like meeting agenda generators, and guides on effective delegation to committees, helping you manage the workload without sacrificing your personal life.",
+                    },
+                    'Lack of Expertise': {
+                        text: "You're an amateur in a professional role. The entire OS is designed as your on-demand training center, providing the foundational knowledge you need for every aspect of the job, from reading financial statements to vetting contractors.",
+                    }
+                };
+
+                const ctx = document.getElementById('hoaPainPointChart').getContext('2d');
+                hoaChart = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: Object.keys(painPoints),
+                        datasets: [{
+                            label: 'Board Stress Level',
+                            data: [90, 85, 75, 80, 95],
+                            fill: true,
+                            backgroundColor: 'rgba(13, 148, 136, 0.2)',
+                            borderColor: 'rgb(13, 148, 136)',
+                            pointBackgroundColor: 'rgb(13, 148, 136)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(13, 148, 136)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        elements: {
+                            line: {
+                                borderWidth: 3
+                            }
+                        },
+                        scales: {
+                            r: {
+                                angleLines: { display: false },
+                                suggestedMin: 0,
+                                suggestedMax: 100,
+                                pointLabels: {
+                                    font: { size: 12, weight: '500' },
+                                    color: '#334155'
+                                },
+                                ticks: { display: false }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { enabled: false }
+                        },
+                        onClick: (e, elements) => {
+                            if (elements.length > 0) {
+                                const elementIndex = elements[0].index;
+                                const label = hoaChart.data.labels[elementIndex];
+                                
+                                hoaSolutionPanel.classList.remove('fade-in');
+                                setTimeout(() => {
+                                   hoaSolutionTitle.textContent = `Solution for: ${label}`;
+                                   hoaSolutionText.textContent = painPoints[label].text;
+                                   hoaSolutionPanel.classList.add('fade-in');
+                                }, 150);
+                            }
+                        },
+                        onHover: (e, elements) => {
+                           e.native.target.style.cursor = elements[0] ? 'pointer' : 'default';
+                        }
+                    }
+                });
             }
-            if(projectResults.interviewQuestions){ text += "INTERVIEW QUESTIONS:\n" + projectResults.interviewQuestions + "\n\n"; }
-            if(projectResults.materialForecast){ text += "MATERIAL FORECAST:\n" + projectResults.materialForecast + "\n\n"; }
-            if(projectResults.permitInfo){ text += "PERMIT & REBATE INFO:\n" + projectResults.permitInfo + "\n" + projectResults.rebateInfo + "\n\n"; }
-            if (projectResults.emailDraft) { text += "COMMUNICATION DRAFT:\n" + projectResults.emailDraft + "\n\n"; }
-            navigator.clipboard.writeText(text).then(() => {
-                const successMsg = document.getElementById('copyProjectSuccess');
-                successMsg.style.display = 'inline';
-                setTimeout(() => { successMsg.style.display = 'none'; }, 2000);
-            });
         });
-
-        const chartFontColor = '#A54432';
-        const chartGridColor = 'rgba(165, 68, 50, 0.1)';
-        const chartOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false, labels: {color: chartFontColor} } }, scales: { y: { ticks: {color: chartFontColor}, grid: {color: chartGridColor}}, x: { ticks: {color: chartFontColor}, grid: {display: false}} }};
-        const homeownerGrievances = { labels: ['Poor Communication', 'Work Mismatch', 'Shoddy Work', 'Surprise Costs', 'Permit Issues'], data: [25, 20, 20, 18, 17], backgroundColor: 'rgba(221, 91, 66, 0.7)' };
-        const contractorGrievances = { labels: ['Unrealistic Budget', 'Micromanaging', 'Payment Delays', 'Scope Creep'], data: [45, 30, 15, 10], backgroundColor: 'rgba(165, 68, 50, 0.7)' };
-        let currentGrievanceIsHomeowner = true;
-        const grievancesCtx = document.getElementById('grievancesChart').getContext('2d');
-        function renderGrievanceChart() {
-            const dataToShow = currentGrievanceIsHomeowner ? homeownerGrievances : contractorGrievances;
-            if (grievancesChart) grievancesChart.destroy();
-            grievancesChart = new Chart(grievancesCtx, { type: 'bar', data: { labels: dataToShow.labels, datasets: [{ data: dataToShow.data, backgroundColor: dataToShow.backgroundColor }] }, options: {...chartOptions, scales: {y:{ticks:{callback:v=>v+'%', color: chartFontColor}}, x:{ticks:{color: chartFontColor}} }} });
-        }
-        document.getElementById('toggleGrievancesBtn').addEventListener('click', () => {
-            currentGrievanceIsHomeowner = !currentGrievanceIsHomeowner;
-            document.getElementById('toggleGrievancesBtn').textContent = currentGrievanceIsHomeowner ? 'Show Contractor Grievances' : 'Show Homeowner Grievances';
-            renderGrievanceChart();
-        });
-
-        const trendsMarketSizeCtx = document.getElementById('trendsMarketSizeChart').getContext('2d');
-        new Chart(trendsMarketSizeCtx, { type: 'line', data: { labels: ['2021', '2022', '2023', '2024(p)', '2025(p)'], datasets: [{ label: 'US Remodeling Market ($B)', data: [538, 611, 605, 602, 609], borderColor: '#DD5B42', backgroundColor: 'rgba(221, 91, 66, 0.1)', fill: true, tension: 0.3 }] }, options: {...chartOptions, plugins: {legend:{display:true, position:'bottom', labels:{color:chartFontColor}}}} });
-        
-        const rateInput = document.getElementById('rateIncrease');
-        rateInput.addEventListener('input', () => {
-            const rate = parseFloat(rateInput.value) || 0;
-            const impact = (rate / 0.25) * 1.1;
-            document.getElementById('rateDisplay').textContent = rate.toFixed(2);
-            document.getElementById('impactDisplay').textContent = impact.toFixed(1) + 'M';
-        });
-
-        showSection('trust-gap');
-        renderGrievanceChart();
-        updateMyProjectPanel();
-    });
     </script>
 </body>
 </html>
-```
