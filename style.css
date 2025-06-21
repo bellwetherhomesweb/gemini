@@ -1,0 +1,11 @@
+        body { font-family: 'Inter', sans-serif; }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 350px; max-height: 400px; }
+        @media (max-width: 768px) { .chart-container { height: 300px; } }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        .fade-out { animation: fadeOut 0.5s ease-in-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-10px); } }
+        .active-nav { color: #0f766e; border-bottom-color: #0f766e; }
+        .inactive-nav { color: #475569; border-bottom-color: transparent; }
+        .quiz-option:hover { background-color: #f0f9ff; }
+        .quiz-option.selected { background-color: #e0f2fe; border-color: #0ea5e9; }
