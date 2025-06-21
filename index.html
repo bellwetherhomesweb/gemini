@@ -10,8 +10,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Warm Neutrals -->
-    <!-- Application Structure Plan: The SPA implements the "Dual-Journey" model from the report. The initial screen forces a user to self-identify as either a "Multifamily Investor" or "HOA Board Member". This choice dynamically reveals a tailored section for that persona. The Investor journey is further segmented into "Emerging" vs. "Institutional" personas, compared visually with cards and a chart. The HOA journey is structured as a "Board Member Survival Kit" with interactive elements to explore their unique pain points. This structure was chosen because it directly translates the report's core strategic insight—that these are distinct audiences with different needs—into an intuitive, non-linear user flow, preventing information overload and maximizing relevance. -->
-    <!-- Visualization & Content Choices: 1) Investor Persona Comparison: Report's Table 1 -> Goal: Compare/differentiate investor sub-personas -> Viz: Side-by-side cards and a Chart.js horizontal bar chart -> Interaction: Clicking a persona card reveals their specific toolset -> Justification: Visually represents the spectrum of investors and aids self-selection. 2) HOA Pain Point Matrix: Report's Table 2 -> Goal: Empathize with and solve HOA board member stressors -> Viz: Chart.js radar chart visualizing pain points -> Interaction: Clicking a point on the chart dynamically displays the corresponding solution text -> Justification: Transforms a static table into an interactive diagnostic tool, reinforcing the "Survival Kit" concept. 3) Site Navigation: Report's "Dual-Journey" architecture -> Goal: Create distinct user paths -> Method: JS-driven content visibility toggling -> Interaction: Main buttons hide the landing view and show the relevant persona section -> Justification: The most direct implementation of the report's primary strategic recommendation. -->
+    <!-- Application Structure Plan: The SPA implements the "Dual-Journey" model from the report. The initial screen forces a user to self-identify as either a "Multifamily Investor" or "HOA Board Member". This choice dynamically reveals a tailored section for that persona. The Investor journey is further segmented into "Emerging" vs. "Institutional" personas, compared visually with cards and a chart. The HOA journey is now structured around the "Empowered Steward" concept with a more positive, empathetic tone. This structure directly translates the report's core strategic insight—that these are distinct audiences—into an intuitive user flow. -->
+    <!-- Visualization & Content Choices: 1) Investor Persona Comparison: Report's Table 1 -> Goal: Compare/differentiate investor sub-personas -> Viz: Side-by-side cards and a Chart.js horizontal bar chart -> Interaction: Clicking a persona card reveals their specific toolset. 2) HOA Responsibility Matrix: Report's Table 2 -> Goal: Empower and guide HOA board members -> Viz: Chart.js radar chart visualizing core responsibilities -> Interaction: Clicking a point on the chart dynamically displays solution-oriented text. 3) Site Navigation: Report's "Dual-Journey" architecture -> Goal: Create distinct user paths -> Method: JS-driven content visibility toggling. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -97,50 +97,50 @@
             </div>
         </section>
 
-        <!-- HOA Board Member Journey -->
+        <!-- HOA Board Member Journey (Updated Tone) -->
         <section id="hoa-journey" class="hidden">
             <div class="text-center mb-12">
-                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">HOA Board HQ</h2>
-                <p class="text-lg text-slate-600 max-w-3xl mx-auto">This is your Board Member Survival Kit. As an "Accidental Executive," you face unique pressures. This resource provides practical, step-by-step guidance to help you navigate your role with confidence and mitigate risk.</p>
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">Your HOA Leadership Compass</h2>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">Guidance for the heart of your community. You stepped up to protect your investment and enhance your neighborhood. We're here to provide the clear guidance and expert tools you need to lead with confidence and make a lasting, positive impact.</p>
             </div>
             
             <div class="grid md:grid-cols-2 gap-8 items-center">
                 <div class="bg-white p-6 rounded-lg shadow-lg">
-                    <h3 class="text-xl font-bold text-center text-slate-800 mb-4">Board Member Stress & Risk Profile</h3>
-                    <p class="text-center text-slate-600 text-sm mb-4">The role of a volunteer board member is defined by a unique set of stressors. This chart visualizes the primary areas of concern. Click on any point to see the OS solution designed to address that specific challenge.</p>
+                    <h3 class="text-xl font-bold text-center text-slate-800 mb-4">Navigating Your Key Responsibilities</h3>
+                    <p class="text-center text-slate-600 text-sm mb-4">A successful community is built on a foundation of sound leadership. This chart highlights the core areas of focus for every effective board. Explore each point to discover expert guidance and tools that empower you to fulfill your role with confidence.</p>
                     <div class="chart-container">
                         <canvas id="hoaPainPointChart"></canvas>
                     </div>
                 </div>
                 <div id="hoa-solution-panel" class="bg-white p-8 rounded-lg shadow-lg min-h-[400px] flex flex-col justify-center transition-all duration-300">
-                    <h3 id="hoa-solution-title" class="text-2xl font-bold text-teal-800 mb-3">Your Board's Toughest Challenges</h3>
-                    <p id="hoa-solution-text" class="text-slate-700">The job of an HOA board member is complex and often thankless, driven by a duty to the community and a fear of liability. This platform is built to provide clarity and reduce anxiety. Explore the chart to see how we help you tackle each challenge head-on.</p>
+                    <h3 id="hoa-solution-title" class="text-2xl font-bold text-teal-800 mb-3">Your Board's Core Functions</h3>
+                    <p id="hoa-solution-text" class="text-slate-700">The work of an HOA board member is vital to protecting property values and enhancing community life. This platform provides the clarity and support you need to lead effectively. Explore the chart to see how we help you master each key responsibility.</p>
                 </div>
             </div>
 
             <div class="mt-12 bg-white p-8 rounded-lg shadow-lg">
-                 <h3 class="text-2xl font-bold text-slate-800 mb-6 text-center">The Board Member Survival Kit: Core Modules</h3>
+                 <h3 class="text-2xl font-bold text-slate-800 mb-6 text-center">Your Leadership Toolkit: Core Modules</h3>
                  <div class="grid md:grid-cols-3 gap-8">
                     <div class="text-center">
                         <div class="mx-auto bg-teal-100 text-teal-700 w-16 h-16 rounded-full flex items-center justify-center mb-4">
                             <span class="text-3xl font-bold">§</span>
                         </div>
-                        <h4 class="text-xl font-semibold mb-2">Governance & Legal</h4>
-                        <p class="text-slate-600">Demystify your fiduciary duty, learn to run legally compliant meetings, and understand your governing documents in plain English.</p>
+                        <h4 class="text-xl font-semibold mb-2">Governance & Compliance</h4>
+                        <p class="text-slate-600">Confidently fulfill your duties with clear guides on your legal responsibilities, meeting procedures, and governing documents.</p>
                     </div>
                     <div class="text-center">
                          <div class="mx-auto bg-teal-100 text-teal-700 w-16 h-16 rounded-full flex items-center justify-center mb-4">
                             <span class="text-3xl font-bold">$</span>
                         </div>
-                        <h4 class="text-xl font-semibold mb-2">Financial Management</h4>
-                        <p class="text-slate-600">Actionable guides for non-accountants on budgeting, financial reporting, and the critical task of reserve funding.</p>
+                        <h4 class="text-xl font-semibold mb-2">Financial Stewardship</h4>
+                        <p class="text-slate-600">Master your community's finances with actionable guides on budgeting, financial reporting, and responsible reserve funding.</p>
                     </div>
                     <div class="text-center">
                          <div class="mx-auto bg-teal-100 text-teal-700 w-16 h-16 rounded-full flex items-center justify-center mb-4">
                             <span class="text-2xl">🤝</span>
                         </div>
-                        <h4 class="text-xl font-semibold mb-2">Community & Operations</h4>
-                        <p class="text-slate-600">Practical playbooks for fair rule enforcement, vendor management, and effective resident communication.</p>
+                        <h4 class="text-xl font-semibold mb-2">Community Harmony</h4>
+                        <p class="text-slate-600">Lead with fairness and consistency using practical playbooks for rule enforcement, vendor management, and resident communication.</p>
                     </div>
                  </div>
             </div>
@@ -319,21 +319,21 @@
                 const hoaSolutionPanel = document.getElementById('hoa-solution-panel');
                 const hoaSolutionTitle = document.getElementById('hoa-solution-title');
                 const hoaSolutionText = document.getElementById('hoa-solution-text');
-                const painPoints = {
-                    'Legal Fear': {
-                        text: "This is a primary source of anxiety. Our 'Governance & Legal' module provides plain-English guides on fiduciary duty, state-specific laws, and templates for running legally compliant meetings to dramatically reduce your personal and association liability.",
+                const responsibilities = {
+                    'Ensuring Compliance': {
+                        text: "Fulfilling your role with integrity starts here. Our 'Governance & Compliance' module provides plain-English guides on your duties and state-specific laws, giving you a clear, compliant path forward and peace of mind.",
                     },
-                    'Financial Anxiety': {
-                        text: "Managing money you're not trained for is stressful. Our 'Financial Management' module includes interactive budget templates, simple explainers for reserve studies, and calculators for special assessments, empowering you to manage finances confidently.",
+                    'Fiscal Stewardship': {
+                        text: "Being a responsible steward of your community's funds is a vital role. Our 'Financial Stewardship' module offers interactive budget templates and simple guides to reserve planning, empowering you to manage your association's finances with clarity and foresight.",
                     },
-                    'Conflict & Enforcement': {
-                        text: "Policing your neighbors is a thankless task. Our 'Community & Operations' hub offers frameworks for fair rule enforcement and communication templates to handle violations and disputes professionally and consistently, reducing community conflict.",
+                    'Fostering Harmony': {
+                        text: "Building a strong community involves navigating disagreements constructively. Our 'Community Harmony' hub provides frameworks for fair, consistent rule application and communication templates to help you resolve issues respectfully.",
                     },
-                    'Volunteer Burnout': {
-                        text: "Feeling overwhelmed is the #1 reason for turnover. We provide tools to automate tasks, like meeting agenda generators, and guides on effective delegation to committees, helping you manage the workload without sacrificing your personal life.",
+                    'Sustainable Service': {
+                        text: "Your contribution is valuable, and your time is precious. We provide tools to streamline your work, from meeting agenda generators to guides on effective delegation, helping you serve your community effectively without sacrificing your personal life.",
                     },
-                    'Lack of Expertise': {
-                        text: "You're an amateur in a professional role. The entire OS is designed as your on-demand training center, providing the foundational knowledge you need for every aspect of the job, from reading financial statements to vetting contractors.",
+                    'Building Confidence': {
+                        text: "Every great leader starts somewhere. The entire OS is designed as your on-demand guide, providing the foundational knowledge you need for every aspect of your role, empowering you to make informed decisions for your community.",
                     }
                 };
 
@@ -341,9 +341,9 @@
                 hoaChart = new Chart(ctx, {
                     type: 'radar',
                     data: {
-                        labels: Object.keys(painPoints),
+                        labels: Object.keys(responsibilities),
                         datasets: [{
-                            label: 'Board Stress Level',
+                            label: 'Area of Focus',
                             data: [90, 85, 75, 80, 95],
                             fill: true,
                             backgroundColor: 'rgba(13, 148, 136, 0.2)',
@@ -385,8 +385,8 @@
                                 
                                 hoaSolutionPanel.classList.remove('fade-in');
                                 setTimeout(() => {
-                                   hoaSolutionTitle.textContent = `Solution for: ${label}`;
-                                   hoaSolutionText.textContent = painPoints[label].text;
+                                   hoaSolutionTitle.textContent = `Guidance for: ${label}`;
+                                   hoaSolutionText.textContent = responsibilities[label].text;
                                    hoaSolutionPanel.classList.add('fade-in');
                                 }, 150);
                             }
