@@ -401,3 +401,329 @@
     </script>
 </body>
 </html>
+
+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infographic: The Two Worlds of Property Leadership</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Brilliant Blues -->
+    <!-- 
+      Application Structure Plan: 
+      The infographic tells a linear story in four acts. 
+      1. Hero: A hook establishing the core thesis - that Multifamily Investors and HOA Board Members are fundamentally different. 
+      2. The Investor Deep Dive: This section deconstructs the "Business Optimizer" persona, using side-by-side cards and charts to visually separate the "Emerging" vs. "Institutional" sub-personas, highlighting their different challenges and information sources. This directly visualizes the analysis from Section 2 of the source report.
+      3. The HOA Deep Dive: This section focuses on the "Accidental Executive," using a radar chart to map their unique stressors and a simple HTML/CSS flow chart to clarify a key area of confusion (governing documents), addressing the pain points from Section 3.
+      4. The Synthesis: A final, powerful grouped bar chart compares the core motivations across all personas, visually summarizing why a "one-size-fits-all" digital tool fails and reinforcing the report's main conclusion. This structure was chosen to guide the user from a high-level concept down to specific persona details and back up to a strategic conclusion, making the report's complex analysis digestible and memorable.
+    -->
+    <!-- 
+      Visualization & Content Choices:
+      - Investor Info Diet (Donut Chart - Chart.js): Goal: Inform. Shows Emerging Investor's reliance on risky peer forums. Justification: Best for simple proportions.
+      - Investor Challenges (Horizontal Bar - Chart.js): Goal: Compare. Directly contrasts the tactical fears of Emerging Investors with the macro concerns of Institutional ones. Justification: Ideal for direct value comparison.
+      - HOA Stress Profile (Radar Chart - Chart.js): Goal: Organize. Visualizes the multi-faceted nature of the HOA role using data from Table 2. Justification: Perfect for showing scores across distinct categories for one entity.
+      - Governing Docs Flowchart (HTML/CSS): Goal: Organize. Visually clarifies a confusing legal concept. Justification: Simple hierarchy is easily represented with styled divs, avoiding prohibited libraries.
+      - Core Motivations (Grouped Bar Chart - Chart.js): Goal: Compare/Synthesize. A powerful summary visual comparing the primary drivers of all personas. Justification: A grouped bar chart is the clearest way to compare multiple groups across the same categories.
+      - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
+    -->
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .chart-container { position: relative; width: 100%; max-width: 500px; margin-left: auto; margin-right: auto; height: 300px; max-height: 350px; }
+        .large-chart-container { position: relative; width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; height: 400px; max-height: 450px; }
+        @media (max-width: 768px) {
+            .chart-container { height: 250px; }
+            .large-chart-container { height: 350px; }
+        }
+        .bg-primary { background-color: #023E8A; }
+        .text-primary { color: #023E8A; }
+        .bg-accent1 { background-color: #0077B6; }
+        .text-accent1 { color: #0077B6; }
+        .bg-accent2 { background-color: #0096C7; }
+        .text-accent2 { color: #0096C7; }
+        .bg-accent3 { background-color: #48CAE4; }
+        .text-accent3 { color: #48CAE4; }
+        .bg-light { background-color: #CAF0F8; }
+        .text-light { color: #CAF0F8; }
+        .card { background-color: white; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); padding: 1.5rem; }
+    </style>
+</head>
+<body class="text-slate-700">
+
+    <main class="container mx-auto px-4 py-12 md:py-16">
+
+        <!-- Hero Section -->
+        <header class="text-center max-w-4xl mx-auto mb-16 md:mb-24">
+            <h1 class="text-4xl md:text-6xl font-extrabold text-primary mb-4">The Two Worlds of Property Leadership</h1>
+            <p class="text-lg md:text-xl text-slate-600">While multifamily investors and HOA board members both steward significant assets, their motivations, challenges, and needs are fundamentally different. This infographic deconstructs these two critical personas to reveal why a one-size-fits-all approach to digital resources is destined to fail.</p>
+        </header>
+
+        <!-- Section 1: The Multifamily Investor -->
+        <section class="mb-16 md:mb-24">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-primary">I. The Multifamily Investor: The Business Optimizer</h2>
+                <p class="mt-4 text-md text-slate-600">This persona, governed by profit and loss, is a business executive focused on financial performance. However, "investor" is not a monolithic title. It's a spectrum from the hands-on operator to the portfolio-level strategist.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <!-- Emerging Investor -->
+                <div class="card">
+                    <h3 class="text-2xl font-bold text-accent1 mb-3">The Emerging Investor</h3>
+                    <p class="mb-4">Manages a job, not just a property. Their primary fear is the "snowball effect" of unforeseen costs that can derail their path to financial freedom.</p>
+                    <div class="chart-container">
+                        <canvas id="investorInfoDietChart"></canvas>
+                    </div>
+                    <p class="text-center text-sm text-slate-500 mt-2">Information Diet: Reliant on high-risk, peer-to-peer forums.</p>
+                </div>
+                <!-- Institutional Strategist -->
+                <div class="card">
+                    <h3 class="text-2xl font-bold text-accent1 mb-3">The Institutional Strategist</h3>
+                    <p class="mb-4">Manages a portfolio, not just a property. They operate at a 30,000-foot view, focused on macro strategy and risk-adjusted returns for their stakeholders.</p>
+                     <div class="chart-container">
+                        <canvas id="investorChallengesChart"></canvas>
+                    </div>
+                    <p class="text-center text-sm text-slate-500 mt-2">Focus: Strategic challenges vs. the tactical fears of new investors.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: The HOA Board Member -->
+        <section class="mb-16 md:mb-24">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-primary">II. The HOA Board Member: The Accidental Executive</h2>
+                <p class="mt-4 text-md text-slate-600">This persona is not a business executive, but a volunteer steward. Motivated by duty and haunted by liability, they are thrust into a complex role with little to no training, seeking rescue and reassurance.</p>
+            </div>
+            <div class="grid md:grid-cols-5 gap-8 items-center">
+                <div class="md:col-span-3 card">
+                     <h3 class="text-2xl font-bold text-center text-accent2 mb-4">Board Member Stress & Risk Profile</h3>
+                    <p class="text-center text-sm text-slate-500 mb-4">The role is defined by a unique set of stressors. Unlike an investor's financial risks, a board member's primary anxieties revolve around legal liability, community conflict, and the sheer weight of responsibility.</p>
+                    <div class="large-chart-container mx-auto">
+                        <canvas id="hoaPainPointChart"></canvas>
+                    </div>
+                </div>
+                <div class="md:col-span-2 card">
+                    <h3 class="text-xl font-bold text-accent2 mb-4">Clarifying Legal Compliance</h3>
+                    <p class="text-sm text-slate-600 mb-6">A primary source of anxiety is navigating the hierarchy of governing documents. A misunderstanding can lead to significant legal exposure for the board and the association.</p>
+                    <!-- Flow Chart using HTML/CSS -->
+                    <div class="space-y-2 text-center">
+                        <div class="bg-primary text-white p-2 rounded-md shadow">Federal / State Laws</div>
+                        <div class="text-primary font-bold">▼</div>
+                        <div class="bg-accent1 text-white p-2 rounded-md shadow">CC&Rs</div>
+                        <div class="text-accent1 font-bold">▼</div>
+                        <div class="bg-accent2 text-white p-2 rounded-md shadow">Articles of Incorporation</div>
+                         <div class="text-accent2 font-bold">▼</div>
+                        <div class="bg-accent3 text-white p-2 rounded-md shadow">Bylaws</div>
+                         <div class="text-accent3 font-bold">▼</div>
+                         <div class="bg-light text-primary p-2 rounded-md shadow">Rules & Regulations</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+         <!-- Section 3: The Synthesis -->
+        <section>
+             <div class="text-center max-w-3xl mx-auto mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-primary">III. Synthesis: Why They Need Different Tools</h2>
+                <p class="mt-4 text-md text-slate-600">The core motivations driving decisions are fundamentally different across these personas. An effective digital OS must speak to these distinct "whys" to provide true value.</p>
+            </div>
+            <div class="card">
+                <h3 class="text-2xl font-bold text-center text-primary mb-4">Primary Decision Drivers Compared</h3>
+                 <div class="large-chart-container">
+                    <canvas id="motivationComparisonChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const processLabels = (labels) => {
+                const maxLen = 16;
+                return labels.map(label => {
+                    if (typeof label !== 'string' || label.length <= maxLen) {
+                        return label;
+                    }
+                    const words = label.split(' ');
+                    const lines = [];
+                    let currentLine = '';
+                    for (const word of words) {
+                        if ((currentLine + ' ' + word).length > maxLen && currentLine.length > 0) {
+                            lines.push(currentLine);
+                            currentLine = word;
+                        } else {
+                            currentLine = currentLine ? currentLine + ' ' + word : word;
+                        }
+                    }
+                    lines.push(currentLine);
+                    return lines;
+                });
+            };
+            
+            const tooltipTitleCallback = (tooltipItems) => {
+                const item = tooltipItems[0];
+                let label = item.chart.data.labels[item.dataIndex];
+                if (Array.isArray(label)) {
+                  return label.join(' ');
+                } else {
+                  return label;
+                }
+            };
+
+            // Investor Info Diet Chart (Donut)
+            const investorInfoDietCtx = document.getElementById('investorInfoDietChart').getContext('2d');
+            new Chart(investorInfoDietCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Peer Forums (High-Risk)', 'Professional Sources'],
+                    datasets: [{
+                        data: [70, 30],
+                        backgroundColor: ['#0096C7', '#CAF0F8'],
+                        borderColor: ['#0096C7', '#CAF0F8'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: { size: 12 }
+                            }
+                        },
+                        tooltip: { callbacks: { title: tooltipTitleCallback } }
+                    }
+                }
+            });
+
+            // Investor Challenges Chart (Horizontal Bar)
+            const investorChallengesCtx = document.getElementById('investorChallengesChart').getContext('2d');
+            new Chart(investorChallengesCtx, {
+                type: 'bar',
+                data: {
+                    labels: processLabels(['Operational Surprises', 'Cash Flow Crises', 'Macroeconomic Headwinds', 'Regulatory Compliance']),
+                    datasets: [{
+                        label: 'Emerging Investor Concern Level',
+                        data: [90, 85, 30, 40],
+                        backgroundColor: '#48CAE4',
+                    }, {
+                        label: 'Institutional Strategist Concern Level',
+                        data: [20, 35, 95, 80],
+                        backgroundColor: '#0077B6',
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { display: false },
+                        y: { ticks: { font: { size: 12 } } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { title: tooltipTitleCallback } }
+                    }
+                }
+            });
+
+            // HOA Pain Point Chart (Radar)
+            const hoaPainPointCtx = document.getElementById('hoaPainPointChart').getContext('2d');
+            new Chart(hoaPainPointCtx, {
+                type: 'radar',
+                data: {
+                    labels: processLabels(['Legal Fear & Liability', 'Financial Anxiety', 'Conflict & Enforcement', 'Volunteer Burnout', 'Lack of Expertise']),
+                    datasets: [{
+                        label: 'Board Stress Level',
+                        data: [90, 85, 75, 80, 95],
+                        fill: true,
+                        backgroundColor: 'rgba(72, 202, 228, 0.2)',
+                        borderColor: '#48CAE4',
+                        pointBackgroundColor: '#48CAE4',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#48CAE4'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: '#ade8f4' },
+                            grid: { color: '#ade8f4' },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            pointLabels: {
+                                font: { size: 12, weight: '500' },
+                                color: '#0077B6'
+                            },
+                            ticks: {
+                                backdropColor: 'white',
+                                color: '#0077b6'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { title: tooltipTitleCallback } }
+                    }
+                }
+            });
+
+            // Motivation Comparison Chart (Grouped Bar)
+            const motivationComparisonCtx = document.getElementById('motivationComparisonChart').getContext('2d');
+            new Chart(motivationComparisonCtx, {
+                type: 'bar',
+                data: {
+                    labels: processLabels(['Financial Return', 'Risk Mitigation', 'Fiduciary Duty']),
+                    datasets: [
+                        {
+                            label: 'Emerging Investor',
+                            data: [95, 70, 5],
+                            backgroundColor: '#0096C7',
+                        },
+                        {
+                            label: 'Institutional Strategist',
+                            data: [85, 90, 40],
+                            backgroundColor: '#0077B6',
+                        },
+                        {
+                            label: 'HOA Board Member',
+                            data: [10, 80, 95],
+                            backgroundColor: '#48CAE4',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: { display: true, text: 'Importance Weighting' }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: { callbacks: { title: tooltipTitleCallback } }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
